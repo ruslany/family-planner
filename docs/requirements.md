@@ -363,7 +363,7 @@ All routes under `/api/`:
 
 ## File Structure
 
-```
+```bash
 /
 ├── app/
 │   ├── layout.tsx              # Root layout with nav
@@ -493,7 +493,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 
 **Goal:** A live Vercel URL that requires Google sign-in. Nothing useful yet, but the foundation is correct and every family member can authenticate.
 
-**Deliverables:**
+#### Deliverables
 
 - Initialize Next.js (App Router) project with TypeScript, Tailwind CSS, and shadcn/ui
 - Set up Prisma with the full schema (all models from the requirements — build the complete schema now so no migrations need to add columns later)
@@ -506,7 +506,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 - Basic app shell: responsive layout with bottom nav (mobile) and top nav (desktop) showing the signed-in user's Google avatar and name; nav tabs are present but lead to placeholder pages
 - Deploy to Vercel with all environment variables configured
 
-**Verification checklist:**
+#### Verification checklist
 
 - [ ] Unauthenticated visit to `/` redirects to `/auth/signin`
 - [ ] Signing in with an allowlisted Google account lands on the app shell
@@ -521,7 +521,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 
 **Goal:** The family can use the app for its primary daily purpose: adding tasks for the week and marking them done. This is the highest-value slice — everything else is secondary.
 
-**Deliverables:**
+#### Deliverables
 
 - `GET /api/weeks/current` — auto-creates a Week record for the current Mon–Sun if one doesn't exist
 - `POST /api/tasks`, `PATCH /api/tasks/[id]`, `DELETE /api/tasks/[id]` API routes
@@ -538,7 +538,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 - Optimistic UI for checkbox toggle — status change feels instant
 - Empty state for weeks with no tasks
 
-**Verification checklist:**
+#### Verification checklist
 
 - [ ] Opening the app shows the current week
 - [ ] Can add a task with just a title; it appears under the correct day or Unscheduled
@@ -553,7 +553,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 
 **Goal:** The full weekly loop works — plan, execute, review, repeat. After this stage the app is complete enough for real weekly use.
 
-**Deliverables:**
+#### Deliverables
 
 - Week state machine transitions via `PATCH /api/weeks/[id]`:
   - `planning` → `in-progress` (triggered by "Start the Week" button)
@@ -569,7 +569,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 - `POST /api/retrospectives` — upsert retrospective for a week
 - After completing a week, auto-create the next week in `planning` state
 
-**Verification checklist:**
+#### Verification checklist
 
 - [ ] New week starts in `planning` state with a visible banner
 - [ ] "Start the Week" moves it to `in-progress` and banner disappears
@@ -584,7 +584,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 
 **Goal:** Tasks can be assigned to specific family members, with their Google avatar shown on each task. The admin can manage who has access.
 
-**Deliverables:**
+#### Deliverables
 
 - **Settings page** (`/settings`):
   - Account section: signed-in user's name, email, Google photo, Sign Out button
@@ -600,7 +600,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
   - Selected assignee's avatar (Google photo or colored initial) shown on the task row
   - Assignee avatar visible in the task list alongside the task title
 
-**Verification checklist:**
+#### Verification checklist
 
 - [ ] Admin can add a new Google email to the allowlist; that person can now sign in
 - [ ] Admin can add a manual family member (e.g. a child's name); they appear in the assignee picker
@@ -614,7 +614,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 
 **Goal:** The family can track progress toward larger multi-week objectives and link individual tasks to them.
 
-**Deliverables:**
+#### Deliverables
 
 - `GET/POST /api/goals`, `PATCH/DELETE /api/goals/[id]` API routes
 - **Goals page** (`/goals`):
@@ -629,7 +629,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
   - Selected goal shown as a small tag/chip on the task row in This Week view
 - Soft-delete for goals: `status = 'dropped'` rather than hard delete; dropped goals hidden by default with a "Show dropped" toggle
 
-**Verification checklist:**
+#### Verification checklist
 
 - [ ] Can create a goal and a project
 - [ ] Can link a task to a goal when adding/editing it
@@ -644,7 +644,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 
 **Goal:** The app feels complete and production-quality. Past weeks are browsable, and the experience is polished on both mobile and desktop.
 
-**Deliverables:**
+#### Deliverables
 
 - **History page** (`/history`):
   - Reverse-chronological list of archived weeks
@@ -664,7 +664,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
   - `manifest.json` with app name, icons, `display: standalone`
   - Allows family members to "Add to Home Screen" on iOS/Android for a native-app feel
 
-**Verification checklist:**
+#### Verification checklist
 
 - [ ] History page shows all past weeks in reverse order
 - [ ] Expanding a past week shows its full task list and retrospective
