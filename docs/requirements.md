@@ -9,14 +9,18 @@ A family-focused web app for weekly task planning, progress tracking, and retros
 ## Core Concepts & Data Model
 
 ### Week
+
 The central unit of the app. A week runs Monday–Sunday. Each week has:
+
 - A **planning state** (planning, in-progress, review, archived)
 - A set of **tasks**
 - An optional **retrospective note** written at week's end
 - A creation date and a week label (e.g. "Jun 16 – Jun 22")
 
 ### Task
+
 An atomic unit of work planned for a specific week. A task has:
+
 - **Title** (required) — short, actionable description
 - **Description** (optional) — more detail, notes, context
 - **Assignee** (optional) — family member name (free text or selected from a family member list)
@@ -28,7 +32,9 @@ An atomic unit of work planned for a specific week. A task has:
 - **Week** — which week this task belongs to
 
 ### Goal / Project
+
 A larger objective that tasks can roll up into. Goals/Projects span multiple weeks. Each has:
+
 - **Title**
 - **Description** (optional)
 - **Type** — `goal` (outcome-oriented) or `project` (deliverable-oriented); both behave the same in MVP
@@ -36,10 +42,13 @@ A larger objective that tasks can roll up into. Goals/Projects span multiple wee
 - **Created at** / **Completed at**
 
 ### Family Members
+
 Each family member signs in with their own Google account. On first sign-in, a `User` record is automatically created from their Google profile (name, email, profile photo). An admin (you) maintains an **allowlist** of permitted Google email addresses — only those emails can access the app. Family members who haven't yet signed in (e.g. young children without their own device) can still be referenced in tasks via a manually created `FamilyMember` entry that is not linked to any Google account.
 
 ### Retrospective
+
 A structured end-of-week note attached to a week. Contains:
+
 - **What went well** (free text)
 - **What didn't go well / what was skipped and why** (free text)
 - **Notes for next week** (free text, carries into next week's planning session)
@@ -50,6 +59,7 @@ A structured end-of-week note attached to a week. Contains:
 ## User Flows
 
 ### Flow 1 — Sunday Planning Session
+
 1. Open app → see current week dashboard
 2. Tap "Plan This Week" button (or it auto-shows if week is in planning state)
 3. Add tasks one by one:
@@ -61,6 +71,7 @@ A structured end-of-week note attached to a week. Contains:
 5. Tap "Start the Week" to move week into `in-progress` state
 
 ### Flow 2 — Daily Task Execution
+
 1. Open app → current week dashboard shows all tasks
 2. Default view: tasks grouped by day (unassigned tasks shown at top or bottom)
 3. Tap a task to toggle it `done` (shows checkmark, strikes through title)
@@ -68,6 +79,7 @@ A structured end-of-week note attached to a week. Contains:
 5. Optionally add/edit task description inline
 
 ### Flow 3 — End-of-Week Review
+
 1. Open app → if all days have passed, a "Review This Week" prompt appears
 2. Tap "Review" → see week summary:
    - Tasks done vs. total
@@ -78,6 +90,7 @@ A structured end-of-week note attached to a week. Contains:
 5. App prompts: "Plan next week?" → goes to Flow 1 for next week with notes from retrospective pre-loaded
 
 ### Flow 4 — Goals & Projects View
+
 1. Dedicated "Goals" tab/page
 2. See all active goals/projects
 3. For each: see linked tasks across all weeks, overall completion %
@@ -85,6 +98,7 @@ A structured end-of-week note attached to a week. Contains:
 5. Mark goal/project complete or change status
 
 ### Flow 5 — History
+
 1. "History" tab shows past archived weeks in reverse chronological order
 2. Tap a week to expand and see its tasks, completion rate, and retrospective
 
@@ -93,6 +107,7 @@ A structured end-of-week note attached to a week. Contains:
 ## UI & UX Requirements
 
 ### General
+
 - Mobile-first design with a clean, warm, family-friendly aesthetic (not corporate)
 - Simple color palette: one primary accent color, light background, clear typography
 - Minimum tap target size: 44×44px for all interactive elements
@@ -101,11 +116,13 @@ A structured end-of-week note attached to a week. Contains:
 - Toast/snackbar notifications for actions (task marked done, week completed, etc.)
 
 ### Navigation
+
 - Bottom navigation bar on mobile with 3–4 tabs: **This Week**, **Goals**, **History**, **Settings**
 - Top nav / sidebar on desktop
 - Active week is always one tap away from any screen
 
 ### This Week View (Primary Screen)
+
 - Header: week date range + current day highlighted
 - Progress bar or ring showing tasks done / total
 - Task list grouped by day (Mon → Sun), with an "Unscheduled" section
@@ -115,22 +132,26 @@ A structured end-of-week note attached to a week. Contains:
 - "Review" or "Plan" call-to-action banner when appropriate
 
 ### Task Add / Edit
+
 - Modal sheet on mobile (slides up from bottom)
 - Full page or side panel on desktop
 - Fields: title (auto-focus), description, assignee (dropdown/chips from family members list), day (day-of-week picker), goal/project (searchable dropdown)
 - Save with single tap; keyboard-friendly
 
 ### Goals View
+
 - Card-based layout per goal/project
 - Each card: title, status badge, progress bar (tasks done this week + all-time), description snippet
 - Tap to expand and see linked tasks by week
 
 ### History View
+
 - Accordion list of past weeks
 - Each week: date range, completion rate (e.g. "8/10 tasks done"), retrospective mood emoji
 - Tap to expand full details
 
 ### Settings
+
 - **Account:** Shows current signed-in Google account (name, photo, email); Sign Out button
 - **Family Members (admin only):** Manage the Google email allowlist (add/remove permitted emails); manage manual family member entries for people without Google accounts
 - **App preferences:** Week start day is always Monday (not configurable in MVP)
@@ -141,6 +162,7 @@ A structured end-of-week note attached to a week. Contains:
 ## Technical Requirements
 
 ### Stack
+
 - **Framework:** Next.js (App Router) with React
 - **Language:** TypeScript throughout
 - **Database:** PostgreSQL (hosted on Neon, Supabase, or Railway — all have free tiers compatible with Vercel)
@@ -278,40 +300,48 @@ model Retrospective {
 All routes under `/api/`:
 
 **Auth**
+
 - `GET/POST /api/auth/[...nextauth]` — NextAuth.js catch-all handler (sign in, sign out, callback)
 
 **Weeks**
+
 - `GET /api/weeks/current` — get or auto-create the current week
 - `GET /api/weeks` — list all weeks (paginated, for history)
 - `GET /api/weeks/[id]` — get a single week with tasks and retrospective
 - `PATCH /api/weeks/[id]` — update week state (e.g. start, complete)
 
 **Tasks**
+
 - `POST /api/tasks` — create a task
 - `PATCH /api/tasks/[id]` — update task (status, title, assignee, day, etc.)
 - `DELETE /api/tasks/[id]` — delete a task
 - `PATCH /api/tasks/reorder` — bulk update sortOrder for drag-and-drop
 
 **Goals & Projects**
+
 - `GET /api/goals` — list all goals/projects
 - `POST /api/goals` — create goal/project
 - `PATCH /api/goals/[id]` — update
 - `DELETE /api/goals/[id]` — delete (soft delete preferred)
 
 **Retrospectives**
+
 - `POST /api/retrospectives` — create or update retrospective for a week
 
 **Family Members**
+
 - `GET /api/members` — list all assignable people (Google Users + manual FamilyMembers)
 - `POST /api/members` — add a manual family member (admin only)
 - `DELETE /api/members/[id]` — remove a manual family member (admin only)
 
 **Allowlist (admin only)**
+
 - `GET /api/allowlist` — list permitted email addresses
 - `POST /api/allowlist` — add an email address
 - `DELETE /api/allowlist/[id]` — remove an email address
 
 ### Architecture Notes
+
 - Use **Server Components** for data fetching where possible; Client Components only for interactive elements
 - Use **Server Actions** for form submissions and mutations (simpler than API routes for many cases — use whichever is cleaner per use case)
 - All database access via **Prisma Client** singleton pattern
@@ -322,6 +352,7 @@ All routes under `/api/`:
 - Environment variables: `DATABASE_URL`, `DIRECT_URL`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET` (random string for NextAuth session signing)
 
 ### Vercel Deployment
+
 - Connect GitHub repo to Vercel
 - Set `DATABASE_URL`, `DIRECT_URL`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, and `AUTH_SECRET` in Vercel environment variables
 - Add your Vercel production URL to the Google Cloud Console OAuth 2.0 authorized redirect URIs: `https://your-app.vercel.app/api/auth/callback/google`
@@ -463,6 +494,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 **Goal:** A live Vercel URL that requires Google sign-in. Nothing useful yet, but the foundation is correct and every family member can authenticate.
 
 **Deliverables:**
+
 - Initialize Next.js (App Router) project with TypeScript, Tailwind CSS, and shadcn/ui
 - Set up Prisma with the full schema (all models from the requirements — build the complete schema now so no migrations need to add columns later)
 - Provision Neon PostgreSQL database and run initial migration
@@ -475,6 +507,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 - Deploy to Vercel with all environment variables configured
 
 **Verification checklist:**
+
 - [ ] Unauthenticated visit to `/` redirects to `/auth/signin`
 - [ ] Signing in with an allowlisted Google account lands on the app shell
 - [ ] Signing in with a non-allowlisted account shows an "access denied" message on the sign-in page
@@ -489,6 +522,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 **Goal:** The family can use the app for its primary daily purpose: adding tasks for the week and marking them done. This is the highest-value slice — everything else is secondary.
 
 **Deliverables:**
+
 - `GET /api/weeks/current` — auto-creates a Week record for the current Mon–Sun if one doesn't exist
 - `POST /api/tasks`, `PATCH /api/tasks/[id]`, `DELETE /api/tasks/[id]` API routes
 - **This Week page** (`/week`):
@@ -505,6 +539,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 - Empty state for weeks with no tasks
 
 **Verification checklist:**
+
 - [ ] Opening the app shows the current week
 - [ ] Can add a task with just a title; it appears under the correct day or Unscheduled
 - [ ] Tapping the checkbox marks it done (strikethrough) immediately; persists on refresh
@@ -519,6 +554,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 **Goal:** The full weekly loop works — plan, execute, review, repeat. After this stage the app is complete enough for real weekly use.
 
 **Deliverables:**
+
 - Week state machine transitions via `PATCH /api/weeks/[id]`:
   - `planning` → `in-progress` (triggered by "Start the Week" button)
   - `in-progress` → `review` (triggered by "Review This Week" banner, shown when current date is past the week's end)
@@ -534,6 +570,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 - After completing a week, auto-create the next week in `planning` state
 
 **Verification checklist:**
+
 - [ ] New week starts in `planning` state with a visible banner
 - [ ] "Start the Week" moves it to `in-progress` and banner disappears
 - [ ] After Sunday, review banner appears
@@ -548,6 +585,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 **Goal:** Tasks can be assigned to specific family members, with their Google avatar shown on each task. The admin can manage who has access.
 
 **Deliverables:**
+
 - **Settings page** (`/settings`):
   - Account section: signed-in user's name, email, Google photo, Sign Out button
   - Family Members section (admin only):
@@ -563,6 +601,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
   - Assignee avatar visible in the task list alongside the task title
 
 **Verification checklist:**
+
 - [ ] Admin can add a new Google email to the allowlist; that person can now sign in
 - [ ] Admin can add a manual family member (e.g. a child's name); they appear in the assignee picker
 - [ ] Assigning a task to a family member shows their avatar on the task row
@@ -576,6 +615,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 **Goal:** The family can track progress toward larger multi-week objectives and link individual tasks to them.
 
 **Deliverables:**
+
 - `GET/POST /api/goals`, `PATCH/DELETE /api/goals/[id]` API routes
 - **Goals page** (`/goals`):
   - Card per goal/project: title, type badge (Goal / Project), status badge, description snippet
@@ -590,6 +630,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 - Soft-delete for goals: `status = 'dropped'` rather than hard delete; dropped goals hidden by default with a "Show dropped" toggle
 
 **Verification checklist:**
+
 - [ ] Can create a goal and a project
 - [ ] Can link a task to a goal when adding/editing it
 - [ ] Goal card shows correct done/total count across all weeks
@@ -604,6 +645,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 **Goal:** The app feels complete and production-quality. Past weeks are browsable, and the experience is polished on both mobile and desktop.
 
 **Deliverables:**
+
 - **History page** (`/history`):
   - Reverse-chronological list of archived weeks
   - Each row: date range, completion rate (e.g. "8 / 10 tasks done"), mood emoji from retrospective
@@ -623,6 +665,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
   - Allows family members to "Add to Home Screen" on iOS/Android for a native-app feel
 
 **Verification checklist:**
+
 - [ ] History page shows all past weeks in reverse order
 - [ ] Expanding a past week shows its full task list and retrospective
 - [ ] Empty states are present on all pages
