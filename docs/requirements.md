@@ -508,12 +508,12 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 
 #### Verification checklist
 
-- [ ] Unauthenticated visit to `/` redirects to `/auth/signin`
-- [ ] Signing in with an allowlisted Google account lands on the app shell
-- [ ] Signing in with a non-allowlisted account shows an "access denied" message on the sign-in page
-- [ ] User's Google name and avatar appear in the nav
-- [ ] Sign out works and redirects to sign-in
-- [ ] Deployed and working on Vercel production URL
+- [x] Unauthenticated visit to `/` redirects to `/auth/signin`
+- [x] Signing in with an allowlisted Google account lands on the app shell
+- [x] Signing in with a non-allowlisted account shows an "access denied" message on the sign-in page
+- [x] User's Google name and avatar appear in the nav
+- [x] Sign out works and redirects to sign-in
+- [x] Deployed and working on Vercel production URL
 
 ---
 
