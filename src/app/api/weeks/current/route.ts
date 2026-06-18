@@ -1,17 +1,21 @@
+import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getCurrentWeekRange } from '@/lib/week-utils';
-import { WeekView } from './WeekView';
-import type { WeekWithTasks } from '@/lib/types';
 
-async function getCurrentWeek(): Promise<WeekWithTasks> {
+const taskInclude = {
+  assigneeUser: { select: { id: true, name: true, image: true } },
+  assigneeMember: { select: { id: true, name: true, color: true } },
+  goalProject: { select: { id: true, title: true } },
+} as const;
+
+export async function GET() {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { startDate, endDate } = getCurrentWeekRange();
-
-  const taskInclude = {
-    assigneeUser: { select: { id: true, name: true, image: true } },
-    assigneeMember: { select: { id: true, name: true, color: true } },
-    goalProject: { select: { id: true, title: true } },
-  } as const;
 
   let week = await prisma.week.findFirst({
     where: { startDate },
@@ -34,11 +38,5 @@ async function getCurrentWeek(): Promise<WeekWithTasks> {
     });
   }
 
-  return week as WeekWithTasks;
-}
-
-export default async function WeekPage() {
-  await auth();
-  const week = await getCurrentWeek();
-  return <WeekView week={week} />;
+  return NextResponse.json(week);
 }
