@@ -21,10 +21,13 @@ export function TaskRow({ task, optimisticStatus, onOptimisticToggle, onOptimist
   const isSkipped = optimisticStatus === 'skipped';
 
   function handleToggle() {
+    const nextStatus = optimisticStatus === 'done' ? 'todo' : 'done';
     onOptimisticToggle(task.id, optimisticStatus);
     startTransition(async () => {
       try {
         await toggleTaskStatus(task.id, optimisticStatus);
+        if (nextStatus === 'done') toast.success('Task completed');
+        else toast.info('Task marked as to-do');
       } catch {
         toast.error('Failed to update task');
       }
@@ -36,6 +39,7 @@ export function TaskRow({ task, optimisticStatus, onOptimisticToggle, onOptimist
     startTransition(async () => {
       try {
         await deleteTask(task.id);
+        toast.success('Task deleted');
       } catch {
         toast.error('Failed to delete task');
       }
@@ -71,7 +75,7 @@ export function TaskRow({ task, optimisticStatus, onOptimisticToggle, onOptimist
       <button
         onClick={handleDelete}
         aria-label={`Delete "${task.title}"`}
-        className="shrink-0 rounded-md p-1 text-muted-foreground/0 transition-colors group-hover:text-muted-foreground hover:text-destructive focus-visible:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:text-muted-foreground/0 md:group-hover:text-muted-foreground md:focus-visible:text-muted-foreground"
       >
         <Trash2Icon className="size-3.5" />
       </button>

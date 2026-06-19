@@ -540,12 +540,12 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 
 #### Verification checklist
 
-- [ ] Opening the app shows the current week
-- [ ] Can add a task with just a title; it appears under the correct day or Unscheduled
-- [ ] Tapping the checkbox marks it done (strikethrough) immediately; persists on refresh
-- [ ] Can delete a task (swipe or long-press on mobile; button on desktop)
-- [ ] Progress bar updates as tasks are completed
-- [ ] Works well on a phone screen (375px wide)
+- [x] Opening the app shows the current week
+- [x] Can add a task with just a title; it appears under the correct day or Unscheduled
+- [x] Tapping the checkbox marks it done (strikethrough) immediately; persists on refresh
+- [x] Can delete a task (swipe or long-press on mobile; button on desktop)
+- [x] Progress bar updates as tasks are completed
+- [x] Works well on a phone screen (375px wide)
 
 ---
 

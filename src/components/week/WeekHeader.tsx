@@ -1,3 +1,7 @@
+'use client';
+
+import { PlusIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { formatWeekLabel } from '@/lib/week-utils';
 
 interface WeekHeaderProps {
@@ -5,15 +9,22 @@ interface WeekHeaderProps {
   endDate: Date;
   totalTasks: number;
   doneTasks: number;
+  onAddTask: () => void;
 }
 
-export function WeekHeader({ startDate, endDate, totalTasks, doneTasks }: WeekHeaderProps) {
+export function WeekHeader({ startDate, endDate, totalTasks, doneTasks, onAddTask }: WeekHeaderProps) {
   const label = formatWeekLabel(startDate, endDate);
   const percent = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
 
   return (
     <div className="mb-6">
-      <h1 className="text-2xl font-bold tracking-tight">{label}</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold tracking-tight">{label}</h1>
+        <Button onClick={onAddTask} className="hidden md:flex">
+          <PlusIcon className="size-4" />
+          Add Task
+        </Button>
+      </div>
       <div className="mt-3 flex items-center gap-3">
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
           <div

@@ -53,6 +53,7 @@ export function WeekView({ week }: WeekViewProps) {
         endDate={new Date(week.endDate)}
         totalTasks={visibleTasks.length}
         doneTasks={doneTasks}
+        onAddTask={() => setSheetOpen(true)}
       />
 
       {!hasTasks && (
@@ -92,17 +93,16 @@ export function WeekView({ week }: WeekViewProps) {
         </div>
       )}
 
-      {/* FAB — always visible, shown below content */}
+      {/* FAB — mobile only; desktop uses the header button */}
       {hasTasks && (
-        <div className="fixed bottom-20 right-4 md:bottom-8 md:right-8">
+        <div className="fixed bottom-20 right-4 md:hidden">
           <Button
             onClick={() => setSheetOpen(true)}
             size="lg"
-            className="h-14 w-14 rounded-full shadow-lg md:h-auto md:w-auto md:rounded-lg md:px-4"
+            className="h-14 w-14 rounded-full shadow-lg"
             aria-label="Add task"
           >
-            <PlusIcon className="size-5 md:size-4" />
-            <span className="sr-only md:not-sr-only md:ml-1">Add Task</span>
+            <PlusIcon className="size-5" />
           </Button>
         </div>
       )}
