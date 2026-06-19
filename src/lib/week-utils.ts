@@ -1,5 +1,13 @@
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const DAY_FULL_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const DAY_FULL_LABELS = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
 
 export function getCurrentWeekRange(): { startDate: Date; endDate: Date } {
   const now = new Date();
@@ -7,7 +15,15 @@ export function getCurrentWeekRange(): { startDate: Date; endDate: Date } {
   const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
   const monday = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - daysFromMonday, 0, 0, 0, 0),
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() - daysFromMonday,
+      0,
+      0,
+      0,
+      0,
+    ),
   );
   const sunday = new Date(
     Date.UTC(

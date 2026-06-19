@@ -3,12 +3,7 @@
 import { useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { PlusIcon } from 'lucide-react';
-import {
-  Dialog,
-  DialogCloseButton,
-  DialogPopup,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogCloseButton, DialogPopup, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -66,7 +61,13 @@ export function TaskSheet({ weekId, open, onOpenChange }: TaskSheetProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); else onOpenChange(true); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) handleClose();
+        else onOpenChange(true);
+      }}
+    >
       <DialogPopup>
         {/* drag handle on mobile */}
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted md:hidden" />
@@ -90,7 +91,9 @@ export function TaskSheet({ weekId, open, onOpenChange }: TaskSheetProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="task-description">Description <span className="font-normal text-muted-foreground">(optional)</span></Label>
+            <Label htmlFor="task-description">
+              Description <span className="font-normal text-muted-foreground">(optional)</span>
+            </Label>
             <Textarea
               id="task-description"
               value={description}
@@ -101,7 +104,9 @@ export function TaskSheet({ weekId, open, onOpenChange }: TaskSheetProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label>Day <span className="font-normal text-muted-foreground">(optional)</span></Label>
+            <Label>
+              Day <span className="font-normal text-muted-foreground">(optional)</span>
+            </Label>
             <div className="flex flex-wrap gap-1.5">
               {DAYS.map((day) => (
                 <button
@@ -122,12 +127,18 @@ export function TaskSheet({ weekId, open, onOpenChange }: TaskSheetProps) {
           </div>
 
           <div className="flex flex-col gap-1.5 opacity-50">
-            <Label>Assignee <span className="font-normal text-muted-foreground">(coming in Stage 4)</span></Label>
+            <Label>
+              Assignee{' '}
+              <span className="font-normal text-muted-foreground">(coming in Stage 4)</span>
+            </Label>
             <div className="h-9 rounded-lg border border-dashed border-border bg-muted/30" />
           </div>
 
           <div className="flex flex-col gap-1.5 opacity-50">
-            <Label>Goal / Project <span className="font-normal text-muted-foreground">(coming in Stage 5)</span></Label>
+            <Label>
+              Goal / Project{' '}
+              <span className="font-normal text-muted-foreground">(coming in Stage 5)</span>
+            </Label>
             <div className="h-9 rounded-lg border border-dashed border-border bg-muted/30" />
           </div>
 

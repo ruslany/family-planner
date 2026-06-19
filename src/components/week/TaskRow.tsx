@@ -15,7 +15,12 @@ interface TaskRowProps {
   onOptimisticDelete: (id: string) => void;
 }
 
-export function TaskRow({ task, optimisticStatus, onOptimisticToggle, onOptimisticDelete }: TaskRowProps) {
+export function TaskRow({
+  task,
+  optimisticStatus,
+  onOptimisticToggle,
+  onOptimisticDelete,
+}: TaskRowProps) {
   const [isPending, startTransition] = useTransition();
   const isDone = optimisticStatus === 'done';
   const isSkipped = optimisticStatus === 'skipped';
@@ -67,7 +72,10 @@ export function TaskRow({ task, optimisticStatus, onOptimisticToggle, onOptimist
       >
         {task.title}
         {task.description && (
-          <span className="ml-1 text-xs text-muted-foreground/70 no-underline" style={{ textDecoration: 'none' }}>
+          <span
+            className="ml-1 text-xs text-muted-foreground/70 no-underline"
+            style={{ textDecoration: 'none' }}
+          >
             — {task.description}
           </span>
         )}

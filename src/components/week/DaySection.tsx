@@ -21,11 +21,7 @@ export function DaySection({
 }: DaySectionProps) {
   return (
     <section className="mb-4">
-      <div
-        className={cn(
-          'mb-1 flex items-center gap-2 px-3 py-1',
-        )}
-      >
+      <div className={cn('mb-1 flex items-center gap-2 px-3 py-1')}>
         <span
           className={cn(
             'text-xs font-semibold uppercase tracking-wider',

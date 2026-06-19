@@ -60,7 +60,9 @@ export function WeekView({ week }: WeekViewProps) {
         <div className="flex flex-col items-center gap-3 py-16 text-center">
           <p className="text-2xl">📋</p>
           <p className="font-medium">No tasks yet</p>
-          <p className="text-sm text-muted-foreground">Tap the button below to add your first task for the week.</p>
+          <p className="text-sm text-muted-foreground">
+            Tap the button below to add your first task for the week.
+          </p>
           <Button onClick={() => setSheetOpen(true)} className="mt-2">
             <PlusIcon className="size-4" />
             Add a task

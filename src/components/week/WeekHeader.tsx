@@ -12,7 +12,13 @@ interface WeekHeaderProps {
   onAddTask: () => void;
 }
 
-export function WeekHeader({ startDate, endDate, totalTasks, doneTasks, onAddTask }: WeekHeaderProps) {
+export function WeekHeader({
+  startDate,
+  endDate,
+  totalTasks,
+  doneTasks,
+  onAddTask,
+}: WeekHeaderProps) {
   const label = formatWeekLabel(startDate, endDate);
   const percent = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
 
