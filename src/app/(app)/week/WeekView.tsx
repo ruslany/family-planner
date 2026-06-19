@@ -5,6 +5,8 @@ import { PlusIcon } from 'lucide-react';
 import { WeekHeader } from '@/components/week/WeekHeader';
 import { DaySection } from '@/components/week/DaySection';
 import { TaskSheet } from '@/components/week/TaskSheet';
+import { PlanningBanner } from '@/components/week/PlanningBanner';
+import { ReviewBanner } from '@/components/week/ReviewBanner';
 import { Button } from '@/components/ui/button';
 import { getDayFullLabel, getCurrentDayOfWeek } from '@/lib/week-utils';
 import type { WeekWithTasks } from '@/lib/types';
@@ -13,9 +15,10 @@ const ORDERED_DAYS = [1, 2, 3, 4, 5, 6, 7] as const;
 
 interface WeekViewProps {
   week: WeekWithTasks;
+  prevNotes: string | null;
 }
 
-export function WeekView({ week }: WeekViewProps) {
+export function WeekView({ week, prevNotes }: WeekViewProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   // optimisticStatuses overrides task.status for instant UI feedback
   const [optimisticStatuses, setOptimisticStatuses] = useState<Record<string, string>>({});
@@ -23,6 +26,7 @@ export function WeekView({ week }: WeekViewProps) {
   const [optimisticDeleted, setOptimisticDeleted] = useState<Set<string>>(new Set());
 
   const todayDow = getCurrentDayOfWeek();
+  const isWeekOver = new Date() > new Date(week.endDate);
 
   const visibleTasks = week.tasks.filter((t) => !optimisticDeleted.has(t.id));
 
@@ -46,6 +50,10 @@ export function WeekView({ week }: WeekViewProps) {
 
   const hasTasks = visibleTasks.length > 0;
 
+  const showPlanningBanner = week.state === 'planning';
+  const showReviewBanner =
+    week.state === 'review' || (week.state === 'in-progress' && isWeekOver);
+
   return (
     <div className="relative mx-auto max-w-2xl px-4 py-6">
       <WeekHeader
@@ -54,7 +62,32 @@ export function WeekView({ week }: WeekViewProps) {
         totalTasks={visibleTasks.length}
         doneTasks={doneTasks}
         onAddTask={() => setSheetOpen(true)}
+        reviewHref={
+          week.state === 'in-progress' || week.state === 'review'
+            ? `/week/${week.id}/review`
+            : undefined
+        }
       />
+
+      {prevNotes && showPlanningBanner && (
+        <div className="mb-4 rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-400">
+            Notes from last week
+          </p>
+          <p className="mt-1 text-sm text-foreground">{prevNotes}</p>
+        </div>
+      )}
+
+      {showPlanningBanner && <PlanningBanner weekId={week.id} />}
+
+      {showReviewBanner && (
+        <ReviewBanner
+          weekId={week.id}
+          doneTasks={doneTasks}
+          totalTasks={visibleTasks.length}
+          alreadyInReview={week.state === 'review'}
+        />
+      )}
 
       {!hasTasks && (
         <div className="flex flex-col items-center gap-3 py-16 text-center">

@@ -65,3 +65,15 @@ export async function deleteTask(id: string) {
   await prisma.task.delete({ where: { id } });
   revalidatePath('/week');
 }
+
+export async function startWeek(weekId: string) {
+  await requireAuth();
+  await prisma.week.update({ where: { id: weekId }, data: { state: 'in-progress' } });
+  revalidatePath('/week');
+}
+
+export async function beginReview(weekId: string) {
+  await requireAuth();
+  await prisma.week.update({ where: { id: weekId }, data: { state: 'review' } });
+  revalidatePath('/week');
+}

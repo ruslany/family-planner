@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatWeekLabel } from '@/lib/week-utils';
@@ -10,6 +11,7 @@ interface WeekHeaderProps {
   totalTasks: number;
   doneTasks: number;
   onAddTask: () => void;
+  reviewHref?: string;
 }
 
 export function WeekHeader({
@@ -18,6 +20,7 @@ export function WeekHeader({
   totalTasks,
   doneTasks,
   onAddTask,
+  reviewHref,
 }: WeekHeaderProps) {
   const label = formatWeekLabel(startDate, endDate);
   const percent = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
@@ -25,7 +28,16 @@ export function WeekHeader({
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight">{label}</h1>
+        {reviewHref ? (
+          <Link
+            href={reviewHref}
+            className="text-2xl font-bold tracking-tight underline-offset-4 hover:underline"
+          >
+            {label}
+          </Link>
+        ) : (
+          <h1 className="text-2xl font-bold tracking-tight">{label}</h1>
+        )}
         <Button onClick={onAddTask} className="hidden md:flex">
           <PlusIcon className="size-4" />
           Add Task

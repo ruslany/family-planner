@@ -58,3 +58,15 @@ export function getCurrentDayOfWeek(): number {
   const d = new Date().getUTCDay(); // 0=Sun
   return d === 0 ? 7 : d;
 }
+
+/** Returns the Mon–Sun range for the week after the given week's startDate. */
+export function getNextWeekRange(currentStartDate: Date): { startDate: Date; endDate: Date } {
+  const d = new Date(currentStartDate);
+  const nextMonday = new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 7, 0, 0, 0, 0),
+  );
+  const nextSunday = new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 13, 23, 59, 59, 999),
+  );
+  return { startDate: nextMonday, endDate: nextSunday };
+}

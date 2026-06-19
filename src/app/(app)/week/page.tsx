@@ -4,7 +4,7 @@ import { getCurrentWeekRange } from '@/lib/week-utils';
 import { WeekView } from './WeekView';
 import type { WeekWithTasks } from '@/lib/types';
 
-async function getCurrentWeek(): Promise<WeekWithTasks> {
+async function getCurrentWeek(): Promise<{ week: WeekWithTasks; prevNotes: string | null }> {
   const { startDate, endDate } = getCurrentWeekRange();
 
   const taskInclude = {
@@ -34,11 +34,21 @@ async function getCurrentWeek(): Promise<WeekWithTasks> {
     });
   }
 
-  return week as WeekWithTasks;
+  let prevNotes: string | null = null;
+  if (week.state === 'planning') {
+    const prevWeek = await prisma.week.findFirst({
+      where: { state: 'archived', endDate: { lt: week.startDate } },
+      orderBy: { endDate: 'desc' },
+      include: { retrospective: { select: { notesForNext: true } } },
+    });
+    prevNotes = prevWeek?.retrospective?.notesForNext ?? null;
+  }
+
+  return { week: week as WeekWithTasks, prevNotes };
 }
 
 export default async function WeekPage() {
   await auth();
-  const week = await getCurrentWeek();
-  return <WeekView week={week} />;
+  const { week, prevNotes } = await getCurrentWeek();
+  return <WeekView week={week} prevNotes={prevNotes} />;
 }
