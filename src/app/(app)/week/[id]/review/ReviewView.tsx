@@ -2,8 +2,10 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
@@ -44,6 +46,14 @@ export function ReviewView({ week }: ReviewViewProps) {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
+      <Link
+        href="/week"
+        className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), '-ml-2 mb-4 gap-1.5')}
+      >
+        <ArrowLeft className="size-4" />
+        Back
+      </Link>
+
       <div className="mb-6">
         <p className="text-sm font-medium text-muted-foreground">Week Review</p>
         <h1 className="mt-1 text-2xl font-bold">
