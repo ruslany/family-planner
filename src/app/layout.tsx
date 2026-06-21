@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
@@ -15,9 +15,20 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#4F46E5',
+};
+
 export const metadata: Metadata = {
   title: 'Family Planner',
   description: 'Plan your week together as a family.',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Family Planner',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
