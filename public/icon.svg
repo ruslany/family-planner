@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Indigo background -->
+  <rect width="512" height="512" rx="100" fill="#4F46E5"/>
+
+  <!-- House roof (white triangle) -->
+  <polygon points="256,80 68,272 444,272" fill="white"/>
+
+  <!-- House body (white rectangle) -->
+  <rect x="116" y="255" width="280" height="180" rx="8" fill="white"/>
+
+  <!-- Bold checkmark (indigo stamp on white body) -->
+  <polyline points="148,345 218,410 370,280"
+    fill="none" stroke="#4F46E5" stroke-width="44"
+    stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
