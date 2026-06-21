@@ -47,7 +47,9 @@ export async function completeWeekAndCreateNext(weekId: string, retroData: Retro
 
   const existing = await prisma.week.findFirst({ where: { startDate: nextStart } });
   if (!existing) {
-    await prisma.week.create({ data: { startDate: nextStart, endDate: nextEnd, state: 'planning' } });
+    await prisma.week.create({
+      data: { startDate: nextStart, endDate: nextEnd, state: 'planning' },
+    });
   }
 
   revalidatePath('/week');

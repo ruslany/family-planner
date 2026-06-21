@@ -13,7 +13,12 @@ interface ReviewBannerProps {
   alreadyInReview: boolean;
 }
 
-export function ReviewBanner({ weekId, doneTasks, totalTasks, alreadyInReview }: ReviewBannerProps) {
+export function ReviewBanner({
+  weekId,
+  doneTasks,
+  totalTasks,
+  alreadyInReview,
+}: ReviewBannerProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 

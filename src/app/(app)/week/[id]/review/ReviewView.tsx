@@ -35,7 +35,12 @@ export function ReviewView({ week }: ReviewViewProps) {
   function handleComplete() {
     startTransition(async () => {
       try {
-        await completeWeekAndCreateNext(week.id, { wentWell, didntGoWell, notesForNext, moodEmoji });
+        await completeWeekAndCreateNext(week.id, {
+          wentWell,
+          didntGoWell,
+          notesForNext,
+          moodEmoji,
+        });
         toast.success('Week completed!');
         router.push('/week');
       } catch {
@@ -141,12 +146,7 @@ export function ReviewView({ week }: ReviewViewProps) {
           </div>
         </div>
 
-        <Button
-          className="mt-2 w-full"
-          size="lg"
-          onClick={handleComplete}
-          disabled={isPending}
-        >
+        <Button className="mt-2 w-full" size="lg" onClick={handleComplete} disabled={isPending}>
           {isPending ? 'Completing…' : 'Complete Week'}
         </Button>
       </div>

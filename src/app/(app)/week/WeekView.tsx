@@ -58,8 +58,7 @@ export function WeekView({ week, prevNotes }: WeekViewProps) {
   const hasTasks = visibleTasks.length > 0;
 
   const showPlanningBanner = week.state === 'planning';
-  const showReviewBanner =
-    week.state === 'review' || (week.state === 'in-progress' && isWeekOver);
+  const showReviewBanner = week.state === 'review' || (week.state === 'in-progress' && isWeekOver);
 
   return (
     <div className="relative mx-auto max-w-2xl px-4 py-6">

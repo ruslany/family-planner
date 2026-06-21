@@ -29,12 +29,7 @@ export function PlanningBanner({ weekId }: PlanningBannerProps) {
       <p className="mt-1 text-sm text-muted-foreground">
         Add your tasks for the week, then tap &ldquo;Start the Week&rdquo; when you&rsquo;re ready.
       </p>
-      <Button
-        className="mt-3"
-        size="sm"
-        onClick={handleStart}
-        disabled={isPending}
-      >
+      <Button className="mt-3" size="sm" onClick={handleStart} disabled={isPending}>
         Start the Week
       </Button>
     </div>
