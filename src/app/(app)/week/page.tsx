@@ -13,13 +13,16 @@ async function getCurrentWeek(): Promise<{ week: WeekWithTasks; prevNotes: strin
     goalProject: { select: { id: true, title: true } },
   } as const;
 
+  const taskOrderBy = [
+    { dayOfWeek: 'asc' as const },
+    { sortOrder: 'asc' as const },
+    { createdAt: 'asc' as const },
+  ];
+
   let week = await prisma.week.findFirst({
     where: { startDate },
     include: {
-      tasks: {
-        orderBy: [{ dayOfWeek: 'asc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }],
-        include: taskInclude,
-      },
+      tasks: { orderBy: taskOrderBy, include: taskInclude },
       retrospective: true,
     },
   });
@@ -32,6 +35,20 @@ async function getCurrentWeek(): Promise<{ week: WeekWithTasks; prevNotes: strin
         retrospective: true,
       },
     });
+  }
+
+  // If the current UTC week is already archived (user completed the retrospective before
+  // midnight UTC), show the next planning week so the planning banner appears immediately.
+  if (week.state === 'archived') {
+    const nextWeek = await prisma.week.findFirst({
+      where: { startDate: { gt: startDate }, state: { in: ['planning', 'in-progress'] } },
+      orderBy: { startDate: 'asc' },
+      include: {
+        tasks: { orderBy: taskOrderBy, include: taskInclude },
+        retrospective: true,
+      },
+    });
+    if (nextWeek) week = nextWeek;
   }
 
   let prevNotes: string | null = null;
