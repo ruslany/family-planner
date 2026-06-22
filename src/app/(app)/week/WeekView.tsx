@@ -9,7 +9,7 @@ import { PlanningBanner } from '@/components/week/PlanningBanner';
 import { ReviewBanner } from '@/components/week/ReviewBanner';
 import { Button } from '@/components/ui/button';
 import { getDayFullLabel, getCurrentDayOfWeek } from '@/lib/week-utils';
-import type { WeekWithTasks, Member } from '@/lib/types';
+import type { WeekWithTasks, Member, TaskWithRelations } from '@/lib/types';
 
 const ORDERED_DAYS = [1, 2, 3, 4, 5, 6, 7] as const;
 
@@ -20,7 +20,8 @@ interface WeekViewProps {
 }
 
 export function WeekView({ week, prevNotes, members }: WeekViewProps) {
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<TaskWithRelations | null>(null);
   // optimisticStatuses overrides task.status for instant UI feedback
   const [optimisticStatuses, setOptimisticStatuses] = useState<Record<string, string>>({});
   // optimisticDeleted tracks ids removed before server confirms
@@ -47,6 +48,17 @@ export function WeekView({ week, prevNotes, members }: WeekViewProps) {
     setOptimisticDeleted((prev) => new Set([...prev, id]));
   }
 
+  function handleEdit(task: TaskWithRelations) {
+    setEditingTask(task);
+  }
+
+  function handleSheetClose(open: boolean) {
+    if (!open) {
+      setCreateOpen(false);
+      setEditingTask(null);
+    }
+  }
+
   const tasksByDay = Object.fromEntries(
     ORDERED_DAYS.map((d) => [d, visibleTasks.filter((t) => t.dayOfWeek === d)]),
   );
@@ -61,6 +73,8 @@ export function WeekView({ week, prevNotes, members }: WeekViewProps) {
   const showPlanningBanner = week.state === 'planning';
   const showReviewBanner = week.state === 'review' || (week.state === 'in-progress' && isWeekOver);
 
+  const sheetOpen = createOpen || editingTask !== null;
+
   return (
     <div className="relative mx-auto max-w-2xl px-4 py-6">
       <WeekHeader
@@ -68,7 +82,7 @@ export function WeekView({ week, prevNotes, members }: WeekViewProps) {
         endDate={new Date(week.endDate)}
         totalTasks={visibleTasks.length}
         doneTasks={doneTasks}
-        onAddTask={() => setSheetOpen(true)}
+        onAddTask={() => setCreateOpen(true)}
         reviewHref={
           week.state === 'in-progress' || week.state === 'review'
             ? `/week/${week.id}/review`
@@ -103,7 +117,7 @@ export function WeekView({ week, prevNotes, members }: WeekViewProps) {
           <p className="text-sm text-muted-foreground">
             Tap the button below to add your first task for the week.
           </p>
-          <Button onClick={() => setSheetOpen(true)} className="mt-2">
+          <Button onClick={() => setCreateOpen(true)} className="mt-2">
             <PlusIcon className="size-4" />
             Add a task
           </Button>
@@ -119,6 +133,7 @@ export function WeekView({ week, prevNotes, members }: WeekViewProps) {
               optimisticStatuses={optimisticStatuses}
               onOptimisticToggle={handleOptimisticToggle}
               onOptimisticDelete={handleOptimisticDelete}
+              onEdit={handleEdit}
             />
           )}
           {ORDERED_DAYS.map((dow) => (
@@ -130,6 +145,7 @@ export function WeekView({ week, prevNotes, members }: WeekViewProps) {
               optimisticStatuses={optimisticStatuses}
               onOptimisticToggle={handleOptimisticToggle}
               onOptimisticDelete={handleOptimisticDelete}
+              onEdit={handleEdit}
             />
           ))}
         </div>
@@ -139,7 +155,7 @@ export function WeekView({ week, prevNotes, members }: WeekViewProps) {
       {hasTasks && (
         <div className="fixed bottom-20 right-4 md:hidden">
           <Button
-            onClick={() => setSheetOpen(true)}
+            onClick={() => setCreateOpen(true)}
             size="lg"
             className="h-14 w-14 rounded-full shadow-lg"
             aria-label="Add task"
@@ -149,7 +165,13 @@ export function WeekView({ week, prevNotes, members }: WeekViewProps) {
         </div>
       )}
 
-      <TaskSheet weekId={week.id} open={sheetOpen} onOpenChange={setSheetOpen} members={members} />
+      <TaskSheet
+        weekId={week.id}
+        open={sheetOpen}
+        onOpenChange={handleSheetClose}
+        members={members}
+        task={editingTask}
+      />
     </div>
   );
 }

@@ -52,13 +52,22 @@ export async function createTask(formData: {
 
 export async function updateTask(
   id: string,
-  data: { title?: string; description?: string; dayOfWeek?: number | null },
+  data: {
+    title?: string;
+    description?: string;
+    dayOfWeek?: number | null;
+    assigneeUserId?: string | null;
+  },
 ) {
   await requireAuth();
   const updates: Record<string, unknown> = {};
   if (data.title !== undefined) updates.title = data.title.trim();
   if (data.description !== undefined) updates.description = data.description?.trim() || null;
   if (data.dayOfWeek !== undefined) updates.dayOfWeek = data.dayOfWeek;
+  if (data.assigneeUserId !== undefined) {
+    updates.assigneeUserId = data.assigneeUserId;
+    updates.assigneeMemberId = null;
+  }
 
   await prisma.task.update({ where: { id }, data: updates });
   revalidatePath('/week');

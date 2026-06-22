@@ -9,6 +9,7 @@ interface DaySectionProps {
   optimisticStatuses: Record<string, string>;
   onOptimisticToggle: (id: string, currentStatus: string) => void;
   onOptimisticDelete: (id: string) => void;
+  onEdit: (task: TaskWithRelations) => void;
 }
 
 export function DaySection({
@@ -18,6 +19,7 @@ export function DaySection({
   optimisticStatuses,
   onOptimisticToggle,
   onOptimisticDelete,
+  onEdit,
 }: DaySectionProps) {
   return (
     <section className="mb-4">
@@ -47,6 +49,7 @@ export function DaySection({
               optimisticStatus={optimisticStatuses[task.id] ?? task.status}
               onOptimisticToggle={onOptimisticToggle}
               onOptimisticDelete={onOptimisticDelete}
+              onEdit={onEdit}
             />
           ))}
         </div>

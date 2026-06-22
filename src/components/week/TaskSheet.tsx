@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { PlusIcon, ChevronDownIcon, XIcon } from 'lucide-react';
+import { PlusIcon, ChevronDownIcon, XIcon, CheckIcon } from 'lucide-react';
 import { Dialog, DialogCloseButton, DialogPopup, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,8 +18,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MemberAvatar } from './MemberAvatar';
 import { cn } from '@/lib/utils';
-import { createTask } from '@/app/(app)/week/actions';
-import type { Member } from '@/lib/types';
+import { createTask, updateTask } from '@/app/(app)/week/actions';
+import type { Member, TaskWithRelations } from '@/lib/types';
 
 const DAYS = [
   { value: 1, label: 'Mon' },
@@ -36,9 +36,12 @@ interface TaskSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   members: Member[];
+  task?: TaskWithRelations | null;
 }
 
-export function TaskSheet({ weekId, open, onOpenChange, members }: TaskSheetProps) {
+export function TaskSheet({ weekId, open, onOpenChange, members, task }: TaskSheetProps) {
+  const isEditing = !!task;
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dayOfWeek, setDayOfWeek] = useState<number | null>(null);
@@ -46,18 +49,20 @@ export function TaskSheet({ weekId, open, onOpenChange, members }: TaskSheetProp
   const [isPending, startTransition] = useTransition();
   const titleRef = useRef<HTMLInputElement>(null);
 
-  const selectedMember = assigneeId ? (members.find((m) => m.id === assigneeId) ?? null) : null;
+  // Sync fields whenever the sheet opens or the task changes
+  useEffect(() => {
+    if (open) {
+      setTitle(task?.title ?? '');
+      setDescription(task?.description ?? '');
+      setDayOfWeek(task?.dayOfWeek ?? null);
+      setAssigneeId(task?.assigneeUserId ?? null);
+    }
+  }, [open, task]);
 
-  function reset() {
-    setTitle('');
-    setDescription('');
-    setDayOfWeek(null);
-    setAssigneeId(null);
-  }
+  const selectedMember = assigneeId ? (members.find((m) => m.id === assigneeId) ?? null) : null;
 
   function handleClose() {
     onOpenChange(false);
-    reset();
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -66,17 +71,16 @@ export function TaskSheet({ weekId, open, onOpenChange, members }: TaskSheetProp
 
     startTransition(async () => {
       try {
-        await createTask({
-          weekId,
-          title,
-          description,
-          dayOfWeek,
-          assigneeUserId: assigneeId,
-        });
+        if (isEditing) {
+          await updateTask(task.id, { title, description, dayOfWeek, assigneeUserId: assigneeId });
+          toast.success('Task updated');
+        } else {
+          await createTask({ weekId, title, description, dayOfWeek, assigneeUserId: assigneeId });
+          toast.success('Task added');
+        }
         handleClose();
-        toast.success('Task added');
       } catch {
-        toast.error('Failed to add task');
+        toast.error(isEditing ? 'Failed to update task' : 'Failed to add task');
       }
     });
   }
@@ -92,7 +96,7 @@ export function TaskSheet({ weekId, open, onOpenChange, members }: TaskSheetProp
       <DialogPopup>
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted md:hidden" />
         <div className="relative mb-5">
-          <DialogTitle>Add Task</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Task' : 'Add Task'}</DialogTitle>
           <DialogCloseButton />
         </div>
 
@@ -209,8 +213,17 @@ export function TaskSheet({ weekId, open, onOpenChange, members }: TaskSheetProp
               Cancel
             </Button>
             <Button type="submit" className="flex-1" disabled={!title.trim() || isPending}>
-              <PlusIcon className="size-4" />
-              Add Task
+              {isEditing ? (
+                <>
+                  <CheckIcon className="size-4" />
+                  Save
+                </>
+              ) : (
+                <>
+                  <PlusIcon className="size-4" />
+                  Add Task
+                </>
+              )}
             </Button>
           </div>
         </form>

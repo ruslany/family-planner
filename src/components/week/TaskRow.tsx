@@ -14,6 +14,7 @@ interface TaskRowProps {
   optimisticStatus: string;
   onOptimisticToggle: (id: string, currentStatus: string) => void;
   onOptimisticDelete: (id: string) => void;
+  onEdit: (task: TaskWithRelations) => void;
 }
 
 export function TaskRow({
@@ -21,6 +22,7 @@ export function TaskRow({
   optimisticStatus,
   onOptimisticToggle,
   onOptimisticDelete,
+  onEdit,
 }: TaskRowProps) {
   const [isPending, startTransition] = useTransition();
   const isDone = optimisticStatus === 'done';
@@ -69,9 +71,11 @@ export function TaskRow({
         aria-label={`Mark "${task.title}" as ${isDone ? 'todo' : 'done'}`}
         className="mt-px shrink-0"
       />
-      <span
+      <button
+        type="button"
+        onClick={() => onEdit(task)}
         className={cn(
-          'flex-1 text-sm leading-snug',
+          'flex-1 text-left text-sm leading-snug',
           (isDone || isSkipped) && 'text-muted-foreground line-through',
         )}
       >
@@ -84,7 +88,7 @@ export function TaskRow({
             — {task.description}
           </span>
         )}
-      </span>
+      </button>
       {assignee && <MemberAvatar member={assignee} size="sm" />}
       <button
         onClick={handleDelete}
