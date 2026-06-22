@@ -46,6 +46,7 @@ export function TaskSheet({ weekId, open, onOpenChange, members, task }: TaskShe
   const [description, setDescription] = useState('');
   const [dayOfWeek, setDayOfWeek] = useState<number | null>(null);
   const [assigneeId, setAssigneeId] = useState<string | null>(null);
+  const [assigneeOpen, setAssigneeOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -157,7 +158,7 @@ export function TaskSheet({ weekId, open, onOpenChange, members, task }: TaskShe
             {members.length === 0 ? (
               <p className="text-sm text-muted-foreground">No family members have signed in yet.</p>
             ) : (
-              <DropdownMenu>
+              <DropdownMenu open={assigneeOpen} onOpenChange={setAssigneeOpen}>
                 <DropdownMenuTrigger className="flex h-9 w-full items-center gap-2 rounded-lg border border-input bg-background px-3 text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   {selectedMember ? (
                     <>
@@ -181,7 +182,10 @@ export function TaskSheet({ weekId, open, onOpenChange, members, task }: TaskShe
                 <DropdownMenuContent>
                   <DropdownMenuRadioGroup
                     value={assigneeId ?? ''}
-                    onValueChange={(v) => setAssigneeId(v || null)}
+                    onValueChange={(v) => {
+                      setAssigneeId(v || null);
+                      setAssigneeOpen(false);
+                    }}
                   >
                     <DropdownMenuGroup>
                       <DropdownMenuRadioItem value="">
