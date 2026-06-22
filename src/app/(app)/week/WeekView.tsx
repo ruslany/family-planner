@@ -26,14 +26,14 @@ export function WeekView({ week, prevNotes }: WeekViewProps) {
   const [optimisticDeleted, setOptimisticDeleted] = useState<Set<string>>(new Set());
 
   const todayDow = getCurrentDayOfWeek();
-  // Also treat Sunday (local time) as week-over so the review banner appears all day Sunday,
-  // not just after midnight UTC (which is 5 PM PDT — same moment next week starts).
-  // Guard with startDate check so a future week shown early doesn't falsely appear over.
+  // Also treat Sunday (UTC) as week-over so the review banner appears all day Sunday.
+  // Must use getUTCDay() — getDay() uses local time, and since weekStart is UTC midnight,
+  // a local Sunday afternoon would falsely satisfy now >= weekStart for the *next* week.
   const now = new Date();
   const weekStart = new Date(week.startDate);
   const weekEnd = new Date(week.endDate);
   const isTodayInWeek = now >= weekStart && now <= weekEnd;
-  const isWeekOver = now > weekEnd || (now.getDay() === 0 && now >= weekStart);
+  const isWeekOver = now > weekEnd || (now.getUTCDay() === 0 && now >= weekStart);
 
   const visibleTasks = week.tasks.filter((t) => !optimisticDeleted.has(t.id));
 
