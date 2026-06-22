@@ -28,9 +28,11 @@ export async function createTask(formData: {
   title: string;
   description?: string;
   dayOfWeek?: number | null;
+  assigneeUserId?: string | null;
+  assigneeMemberId?: string | null;
 }) {
   await requireAuth();
-  const { weekId, title, description, dayOfWeek } = formData;
+  const { weekId, title, description, dayOfWeek, assigneeUserId, assigneeMemberId } = formData;
 
   if (!weekId || !title?.trim()) throw new Error('weekId and title are required');
 
@@ -41,6 +43,8 @@ export async function createTask(formData: {
       description: description?.trim() || null,
       dayOfWeek: dayOfWeek ?? null,
       status: 'todo',
+      assigneeUserId: assigneeUserId ?? null,
+      assigneeMemberId: assigneeMemberId ?? null,
     },
   });
   revalidatePath('/week');

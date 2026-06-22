@@ -10,3 +10,9 @@ export interface WeekWithTasks extends Week {
   tasks: TaskWithRelations[];
   retrospective: Retrospective | null;
 }
+
+export interface Member {
+  id: string;
+  name: string;
+  image?: string | null;
+}

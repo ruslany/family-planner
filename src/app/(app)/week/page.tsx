@@ -2,7 +2,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getCurrentWeekRange } from '@/lib/week-utils';
 import { WeekView } from './WeekView';
-import type { WeekWithTasks } from '@/lib/types';
+import type { WeekWithTasks, Member } from '@/lib/types';
 
 async function getCurrentWeek(): Promise<{ week: WeekWithTasks; prevNotes: string | null }> {
   const { startDate, endDate } = getCurrentWeekRange();
@@ -64,8 +64,13 @@ async function getCurrentWeek(): Promise<{ week: WeekWithTasks; prevNotes: strin
   return { week: week as WeekWithTasks, prevNotes };
 }
 
+async function getMembers(): Promise<Member[]> {
+  const users = await prisma.user.findMany({ select: { id: true, name: true, image: true } });
+  return users.map((u) => ({ id: u.id, name: u.name ?? 'Unknown', image: u.image }));
+}
+
 export default async function WeekPage() {
   await auth();
-  const { week, prevNotes } = await getCurrentWeek();
-  return <WeekView week={week} prevNotes={prevNotes} />;
+  const [{ week, prevNotes }, members] = await Promise.all([getCurrentWeek(), getMembers()]);
+  return <WeekView week={week} prevNotes={prevNotes} members={members} />;
 }

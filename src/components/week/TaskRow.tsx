@@ -4,6 +4,7 @@ import { useTransition } from 'react';
 import { Trash2Icon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
+import { MemberAvatar } from './MemberAvatar';
 import { cn } from '@/lib/utils';
 import { toggleTaskStatus, deleteTask } from '@/app/(app)/week/actions';
 import type { TaskWithRelations } from '@/lib/types';
@@ -24,6 +25,10 @@ export function TaskRow({
   const [isPending, startTransition] = useTransition();
   const isDone = optimisticStatus === 'done';
   const isSkipped = optimisticStatus === 'skipped';
+
+  const assignee = task.assigneeUser
+    ? { name: task.assigneeUser.name ?? 'Unknown', image: task.assigneeUser.image }
+    : null;
 
   function handleToggle() {
     const nextStatus = optimisticStatus === 'done' ? 'todo' : 'done';
@@ -80,6 +85,7 @@ export function TaskRow({
           </span>
         )}
       </span>
+      {assignee && <MemberAvatar member={assignee} size="sm" />}
       <button
         onClick={handleDelete}
         aria-label={`Delete "${task.title}"`}

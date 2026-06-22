@@ -9,16 +9,17 @@ import { PlanningBanner } from '@/components/week/PlanningBanner';
 import { ReviewBanner } from '@/components/week/ReviewBanner';
 import { Button } from '@/components/ui/button';
 import { getDayFullLabel, getCurrentDayOfWeek } from '@/lib/week-utils';
-import type { WeekWithTasks } from '@/lib/types';
+import type { WeekWithTasks, Member } from '@/lib/types';
 
 const ORDERED_DAYS = [1, 2, 3, 4, 5, 6, 7] as const;
 
 interface WeekViewProps {
   week: WeekWithTasks;
   prevNotes: string | null;
+  members: Member[];
 }
 
-export function WeekView({ week, prevNotes }: WeekViewProps) {
+export function WeekView({ week, prevNotes, members }: WeekViewProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   // optimisticStatuses overrides task.status for instant UI feedback
   const [optimisticStatuses, setOptimisticStatuses] = useState<Record<string, string>>({});
@@ -148,7 +149,7 @@ export function WeekView({ week, prevNotes }: WeekViewProps) {
         </div>
       )}
 
-      <TaskSheet weekId={week.id} open={sheetOpen} onOpenChange={setSheetOpen} />
+      <TaskSheet weekId={week.id} open={sheetOpen} onOpenChange={setSheetOpen} members={members} />
     </div>
   );
 }
