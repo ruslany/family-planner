@@ -40,9 +40,7 @@ export default async function SettingsPage() {
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{user.name}</p>
               <p className="text-sm text-muted-foreground truncate">{user.email}</p>
-              {user.isAdmin && (
-                <p className="mt-0.5 text-xs text-primary font-medium">Admin</p>
-              )}
+              {user.isAdmin && <p className="mt-0.5 text-xs text-primary font-medium">Admin</p>}
             </div>
             <SignOutButton />
           </div>

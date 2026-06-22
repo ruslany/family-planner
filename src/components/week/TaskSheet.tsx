@@ -151,14 +151,10 @@ export function TaskSheet({ weekId, open, onOpenChange, members }: TaskSheetProp
               Assignee <span className="font-normal text-muted-foreground">(optional)</span>
             </Label>
             {members.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No family members have signed in yet.
-              </p>
+              <p className="text-sm text-muted-foreground">No family members have signed in yet.</p>
             ) : (
               <DropdownMenu>
-                <DropdownMenuTrigger
-                  className="flex h-9 w-full items-center gap-2 rounded-lg border border-input bg-background px-3 text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
+                <DropdownMenuTrigger className="flex h-9 w-full items-center gap-2 rounded-lg border border-input bg-background px-3 text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   {selectedMember ? (
                     <>
                       <MemberAvatar member={selectedMember} size="sm" />
