@@ -35,7 +35,9 @@ export function WeekView({ week, prevNotes, members }: WeekViewProps) {
   const weekStart = new Date(week.startDate);
   const weekEnd = new Date(week.endDate);
   const isTodayInWeek = now >= weekStart && now <= weekEnd;
-  const isWeekOver = now > weekEnd || (now.getUTCDay() === 0 && now >= weekStart);
+  // Treat all of local Sunday as week-over so the review banner appears all day Sunday,
+  // not just after 23:59:59 UTC. now >= weekStart guards against firing on future weeks.
+  const isWeekOver = now > weekEnd || (now.getDay() === 0 && now >= weekStart);
 
   const visibleTasks = week.tasks.filter((t) => !optimisticDeleted.has(t.id));
 

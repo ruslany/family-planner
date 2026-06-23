@@ -11,14 +11,14 @@ const DAY_FULL_LABELS = [
 
 export function getCurrentWeekRange(): { startDate: Date; endDate: Date } {
   const now = new Date();
-  const dayOfWeek = now.getUTCDay(); // 0=Sun, 1=Mon...6=Sat
+  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...6=Sat (local time)
   const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
   const monday = new Date(
     Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate() - daysFromMonday,
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - daysFromMonday,
       0,
       0,
       0,
@@ -27,9 +27,9 @@ export function getCurrentWeekRange(): { startDate: Date; endDate: Date } {
   );
   const sunday = new Date(
     Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate() - daysFromMonday + 6,
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - daysFromMonday + 6,
       23,
       59,
       59,
@@ -53,9 +53,9 @@ export function getDayFullLabel(dayOfWeek: number): string {
   return DAY_FULL_LABELS[dayOfWeek - 1] ?? '';
 }
 
-/** Returns 1 (Mon) – 7 (Sun) for today in UTC. */
+/** Returns 1 (Mon) – 7 (Sun) for today in local time. */
 export function getCurrentDayOfWeek(): number {
-  const d = new Date().getUTCDay(); // 0=Sun
+  const d = new Date().getDay(); // 0=Sun (local time)
   return d === 0 ? 7 : d;
 }
 
