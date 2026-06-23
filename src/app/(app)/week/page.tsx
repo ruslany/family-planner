@@ -2,9 +2,13 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getCurrentWeekRange } from '@/lib/week-utils';
 import { WeekView } from './WeekView';
-import type { WeekWithTasks, Member } from '@/lib/types';
+import type { WeekWithTasks, Member, TaskWithRelations } from '@/lib/types';
 
-async function getCurrentWeek(): Promise<{ week: WeekWithTasks; prevNotes: string | null }> {
+async function getCurrentWeek(): Promise<{
+  week: WeekWithTasks;
+  prevNotes: string | null;
+  carryoverTasks: TaskWithRelations[];
+}> {
   const { startDate, endDate } = getCurrentWeekRange();
 
   const taskInclude = {
@@ -52,16 +56,24 @@ async function getCurrentWeek(): Promise<{ week: WeekWithTasks; prevNotes: strin
   }
 
   let prevNotes: string | null = null;
-  if (week.state === 'planning') {
+  let carryoverTasks: TaskWithRelations[] = [];
+
+  if (week.state === 'planning' || week.state === 'in-progress') {
     const prevWeek = await prisma.week.findFirst({
       where: { state: 'archived', endDate: { lt: week.startDate } },
       orderBy: { endDate: 'desc' },
-      include: { retrospective: { select: { notesForNext: true } } },
+      include: {
+        retrospective: { select: { notesForNext: true } },
+        tasks: { where: { status: 'todo' }, include: taskInclude },
+      },
     });
-    prevNotes = prevWeek?.retrospective?.notesForNext ?? null;
+    if (week.state === 'planning') {
+      prevNotes = prevWeek?.retrospective?.notesForNext ?? null;
+    }
+    carryoverTasks = (prevWeek?.tasks ?? []) as TaskWithRelations[];
   }
 
-  return { week: week as WeekWithTasks, prevNotes };
+  return { week: week as WeekWithTasks, prevNotes, carryoverTasks };
 }
 
 async function getMembers(): Promise<Member[]> {
@@ -71,6 +83,11 @@ async function getMembers(): Promise<Member[]> {
 
 export default async function WeekPage() {
   await auth();
-  const [{ week, prevNotes }, members] = await Promise.all([getCurrentWeek(), getMembers()]);
-  return <WeekView week={week} prevNotes={prevNotes} members={members} />;
+  const [{ week, prevNotes, carryoverTasks }, members] = await Promise.all([
+    getCurrentWeek(),
+    getMembers(),
+  ]);
+  return (
+    <WeekView week={week} prevNotes={prevNotes} carryoverTasks={carryoverTasks} members={members} />
+  );
 }

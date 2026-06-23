@@ -90,3 +90,54 @@ export async function beginReview(weekId: string) {
   await prisma.week.update({ where: { id: weekId }, data: { state: 'review' } });
   revalidatePath('/week');
 }
+
+export async function carryForwardTask(taskId: string, newWeekId: string) {
+  await requireAuth();
+
+  const task = await prisma.task.findUnique({ where: { id: taskId } });
+  if (!task) throw new Error('Task not found');
+
+  await prisma.$transaction([
+    prisma.task.update({ where: { id: taskId }, data: { status: 'skipped' } }),
+    prisma.task.create({
+      data: {
+        weekId: newWeekId,
+        title: task.title,
+        description: task.description,
+        status: 'todo',
+        dayOfWeek: null,
+        assigneeUserId: task.assigneeUserId,
+        assigneeMemberId: task.assigneeMemberId,
+        goalProjectId: task.goalProjectId,
+      },
+    }),
+  ]);
+
+  revalidatePath('/week');
+}
+
+export async function carryForwardAllTasks(taskIds: string[], newWeekId: string) {
+  await requireAuth();
+
+  const tasks = await prisma.task.findMany({ where: { id: { in: taskIds } } });
+
+  await prisma.$transaction([
+    prisma.task.updateMany({ where: { id: { in: taskIds } }, data: { status: 'skipped' } }),
+    ...tasks.map((task) =>
+      prisma.task.create({
+        data: {
+          weekId: newWeekId,
+          title: task.title,
+          description: task.description,
+          status: 'todo',
+          dayOfWeek: null,
+          assigneeUserId: task.assigneeUserId,
+          assigneeMemberId: task.assigneeMemberId,
+          goalProjectId: task.goalProjectId,
+        },
+      }),
+    ),
+  ]);
+
+  revalidatePath('/week');
+}

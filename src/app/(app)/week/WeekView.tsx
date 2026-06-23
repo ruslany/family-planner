@@ -7,6 +7,7 @@ import { DaySection } from '@/components/week/DaySection';
 import { TaskSheet } from '@/components/week/TaskSheet';
 import { PlanningBanner } from '@/components/week/PlanningBanner';
 import { ReviewBanner } from '@/components/week/ReviewBanner';
+import { CarryoverBanner } from '@/components/week/CarryoverBanner';
 import { Button } from '@/components/ui/button';
 import { getDayFullLabel, getCurrentDayOfWeek } from '@/lib/week-utils';
 import type { WeekWithTasks, Member, TaskWithRelations } from '@/lib/types';
@@ -16,10 +17,11 @@ const ORDERED_DAYS = [1, 2, 3, 4, 5, 6, 7] as const;
 interface WeekViewProps {
   week: WeekWithTasks;
   prevNotes: string | null;
+  carryoverTasks: TaskWithRelations[];
   members: Member[];
 }
 
-export function WeekView({ week, prevNotes, members }: WeekViewProps) {
+export function WeekView({ week, prevNotes, carryoverTasks, members }: WeekViewProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskWithRelations | null>(null);
   // optimisticStatuses overrides task.status for instant UI feedback
@@ -102,6 +104,10 @@ export function WeekView({ week, prevNotes, members }: WeekViewProps) {
       )}
 
       {showPlanningBanner && <PlanningBanner weekId={week.id} />}
+
+      {carryoverTasks.length > 0 && !showReviewBanner && (
+        <CarryoverBanner weekId={week.id} tasks={carryoverTasks} />
+      )}
 
       {showReviewBanner && (
         <ReviewBanner
