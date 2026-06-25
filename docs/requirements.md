@@ -26,20 +26,21 @@ An atomic unit of work planned for a specific week. A task has:
 - **Assignee** (optional) — family member name (free text or selected from a family member list)
 - **Day assignment** (optional) — a specific day of the week (Mon–Sun), or left unassigned
 - **Status** — `todo` | `done` | `skipped`
-- **Parent** (optional) — a reference to a Goal or Project this task contributes to
+- **Project** (optional) — a reference to a Project this task contributes to
 - **Completion date** (optional) — auto-set when marked done
 - **Created at** timestamp
 - **Week** — which week this task belongs to
 
-### Goal / Project
+### Project
 
-A larger objective that tasks can roll up into. Goals/Projects span multiple weeks. Each has:
+A larger initiative that tasks can roll up into. Projects span multiple weeks and maintain their own task backlog. Each has:
 
 - **Title**
 - **Description** (optional)
-- **Type** — `goal` (outcome-oriented) or `project` (deliverable-oriented); both behave the same in MVP
 - **Status** — `active` | `completed` | `on-hold` | `dropped`
 - **Created at** / **Completed at**
+
+Tasks belong to a project's backlog by default (no week assigned). During weekly planning, backlog tasks can be scheduled into a specific week. A task with no week assignment is a backlog item; a task with a week assignment is a scheduled task (and may still reference its parent project).
 
 ### Family Members
 
@@ -62,11 +63,9 @@ A structured end-of-week note attached to a week. Contains:
 
 1. Open app → see current week dashboard
 2. Tap "Plan This Week" button (or it auto-shows if week is in planning state)
-3. Add tasks one by one:
-   - Task title (required)
-   - Optionally assign to a family member
-   - Optionally assign to a day
-   - Optionally link to a goal/project
+3. Add tasks for the week — two ways:
+   - **Create a new task directly**: title, optional assignee, optional day, optional project link
+   - **Pull from a project backlog**: browse projects, select a backlog task → it gets scheduled for this week (optionally assign a day)
 4. Review task list together; reorder or delete as needed
 5. Tap "Start the Week" to move week into `in-progress` state
 
@@ -84,18 +83,19 @@ A structured end-of-week note attached to a week. Contains:
 2. Tap "Review" → see week summary:
    - Tasks done vs. total
    - Tasks by assignee
-   - Any tasks linked to goals/projects (with goal progress)
+   - Any tasks linked to projects (with project backlog status)
 3. Fill in retrospective fields (what went well, didn't, notes for next week)
 4. Tap "Complete Week" → week moves to `archived` state
 5. App prompts: "Plan next week?" → goes to Flow 1 for next week with notes from retrospective pre-loaded
 
-### Flow 4 — Goals & Projects View
+### Flow 4 — Projects View
 
-1. Dedicated "Goals" tab/page
-2. See all active goals/projects
-3. For each: see linked tasks across all weeks, overall completion %
-4. Add new goal/project
-5. Mark goal/project complete or change status
+1. Dedicated "Projects" tab/page
+2. See all active projects
+3. For each project: see its backlog tasks (unscheduled) and previously scheduled tasks grouped by week
+4. Add tasks directly to a project's backlog (no week needed)
+5. From the backlog, schedule a task into the current week's plan
+6. Add new project or change project status
 
 ### Flow 5 — History
 
@@ -117,7 +117,7 @@ A structured end-of-week note attached to a week. Contains:
 
 ### Navigation
 
-- Bottom navigation bar on mobile with 3–4 tabs: **This Week**, **Goals**, **History**, **Settings**
+- Bottom navigation bar on mobile with 3–4 tabs: **This Week**, **Projects**, **History**, **Settings**
 - Top nav / sidebar on desktop
 - Active week is always one tap away from any screen
 
@@ -126,7 +126,7 @@ A structured end-of-week note attached to a week. Contains:
 - Header: week date range + current day highlighted
 - Progress bar or ring showing tasks done / total
 - Task list grouped by day (Mon → Sun), with an "Unscheduled" section
-- Each task row: checkbox | title | assignee avatar/initial | (optional) goal tag
+- Each task row: checkbox | title | assignee avatar/initial | (optional) project tag
 - Completed tasks visually de-emphasized (strikethrough, muted color) but still visible
 - Floating action button (FAB) for "Add Task" on mobile
 - "Review" or "Plan" call-to-action banner when appropriate
@@ -135,14 +135,16 @@ A structured end-of-week note attached to a week. Contains:
 
 - Modal sheet on mobile (slides up from bottom)
 - Full page or side panel on desktop
-- Fields: title (auto-focus), description, assignee (dropdown/chips from family members list), day (day-of-week picker), goal/project (searchable dropdown)
+- Fields: title (auto-focus), description, assignee (dropdown/chips from family members list), day (day-of-week picker), project (searchable dropdown)
 - Save with single tap; keyboard-friendly
 
-### Goals View
+### Projects View
 
-- Card-based layout per goal/project
-- Each card: title, status badge, progress bar (tasks done this week + all-time), description snippet
-- Tap to expand and see linked tasks by week
+- Card-based layout per project
+- Each card: title, status badge, backlog count (unscheduled tasks), description snippet
+- Tap to expand and see: backlog tasks + scheduled tasks grouped by week
+- Within the expanded view: add task button creates a backlog task (no week assigned)
+- Each backlog task has a "Schedule for this week" action
 
 ### History View
 
@@ -242,11 +244,10 @@ model FamilyMember {
   tasks     Task[]
 }
 
-model GoalProject {
+model Project {
   id          String   @id @default(cuid())
   title       String
   description String?
-  type        String   // "goal" | "project"
   status      String   @default("active") // "active" | "completed" | "on-hold" | "dropped"
   createdAt   DateTime @default(now())
   completedAt DateTime?
@@ -272,15 +273,16 @@ model Task {
   sortOrder         Int           @default(0)
   createdAt         DateTime      @default(now())
   completedAt       DateTime?
-  week              Week          @relation(fields: [weekId], references: [id])
-  weekId            String
+  // weekId is null for project backlog tasks; set when scheduled for a specific week
+  week              Week?         @relation(fields: [weekId], references: [id])
+  weekId            String?
   // Assignee is either a Google-authenticated User OR a manual FamilyMember (not both)
   assigneeUser      User?         @relation(fields: [assigneeUserId], references: [id])
   assigneeUserId    String?
   assigneeMember    FamilyMember? @relation(fields: [assigneeMemberId], references: [id])
   assigneeMemberId  String?
-  goalProject       GoalProject?  @relation(fields: [goalProjectId], references: [id])
-  goalProjectId     String?
+  project           Project?      @relation(fields: [projectId], references: [id])
+  projectId         String?
 }
 
 model Retrospective {
@@ -317,12 +319,14 @@ All routes under `/api/`:
 - `DELETE /api/tasks/[id]` — delete a task
 - `PATCH /api/tasks/reorder` — bulk update sortOrder for drag-and-drop
 
-**Goals & Projects**
+**Projects**
 
-- `GET /api/goals` — list all goals/projects
-- `POST /api/goals` — create goal/project
-- `PATCH /api/goals/[id]` — update
-- `DELETE /api/goals/[id]` — delete (soft delete preferred)
+- `GET /api/projects` — list all projects (optionally filter by status)
+- `POST /api/projects` — create project
+- `PATCH /api/projects/[id]` — update project
+- `DELETE /api/projects/[id]` — soft-delete (set status to `dropped`)
+- `POST /api/projects/[id]/tasks` — add a task to a project's backlog (no weekId)
+- `PATCH /api/tasks/[id]` — schedule a backlog task for a week (set `weekId` + optional `dayOfWeek`), or unschedule (clear `weekId`)
 
 **Retrospectives**
 
@@ -372,8 +376,8 @@ All routes under `/api/`:
 │   │   ├── page.tsx            # This Week view
 │   │   └── [id]/
 │   │       └── page.tsx        # Specific week (for history)
-│   ├── goals/
-│   │   └── page.tsx            # Goals & Projects view
+│   ├── projects/
+│   │   └── page.tsx            # Projects view
 │   ├── history/
 │   │   └── page.tsx            # History view
 │   ├── settings/
@@ -387,7 +391,7 @@ All routes under `/api/`:
 │       │       └── route.ts    # NextAuth catch-all handler
 │       ├── weeks/...
 │       ├── tasks/...
-│       ├── goals/...
+│       ├── projects/...
 │       ├── retrospectives/...
 │       ├── allowlist/...
 │       └── members/...
@@ -402,9 +406,9 @@ All routes under `/api/`:
 │   │   ├── TaskRow.tsx         # Individual task with checkbox
 │   │   ├── TaskSheet.tsx       # Add/edit task modal
 │   │   └── ReviewBanner.tsx    # Prompt to review or plan
-│   ├── goals/
-│   │   ├── GoalCard.tsx
-│   │   └── GoalSheet.tsx
+│   ├── projects/
+│   │   ├── ProjectCard.tsx
+│   │   └── ProjectSheet.tsx
 │   ├── retro/
 │   │   └── RetroForm.tsx
 │   └── ui/                     # shadcn/ui components (auto-generated)
@@ -435,7 +439,7 @@ The following are **in scope** for the initial version:
 - [ ] Mark tasks done / skipped / todo (tap to toggle)
 - [ ] Week state transitions (planning → in-progress → review → archived)
 - [ ] End-of-week retrospective form
-- [ ] Goals & Projects with task linkage
+- [ ] Projects with task backlogs; scheduling backlog tasks into weekly plans
 - [ ] Family members management (Settings)
 - [ ] History view (past weeks, read-only)
 - [ ] Google OAuth sign-in (NextAuth.js) with email allowlist
@@ -462,7 +466,7 @@ The following are **in scope** for the initial version:
 - **Performance:** Initial page load < 2s on mobile LTE; task status toggle feels instant (optimistic)
 - **Accessibility:** Keyboard navigable, ARIA labels on interactive elements, sufficient color contrast (WCAG AA)
 - **Error handling:** Network errors show user-friendly messages; forms preserve input on failure
-- **Empty states:** Thoughtful empty state UI for new weeks, no tasks, no goals
+- **Empty states:** Thoughtful empty state UI for new weeks, no tasks, no projects
 - **Data safety:** No hard deletes for tasks in archived weeks; soft-delete or archive pattern preferred
 
 ---
@@ -474,6 +478,8 @@ The following are **in scope** for the initial version:
 **Why an allowlist instead of open registration?** The app is for one family. Rather than relying on Google's authentication alone (anyone with a Google account could potentially reach the app URL), the allowlist ensures that only your specific family members' email addresses can create sessions, even if the Vercel URL is discovered by someone else.
 
 **Why PostgreSQL over SQLite?** Vercel's serverless functions don't have a persistent filesystem, so SQLite won't work. PostgreSQL on Neon gives a real database with a free tier and a first-class Vercel integration.
+
+**Why project tasks live outside the week model?** Forcing every task into a week creates friction when capturing ideas mid-week or building up a project backlog over time. Making `weekId` optional lets tasks exist in a project's backlog indefinitely and be pulled into a week only when the family decides to work on them — matching how real planning actually works.
 
 **Why shadcn/ui?** It gives accessible, customizable components (dialogs, sheets, checkboxes, dropdowns) without locking into a heavy component library. Components are copied into the project and fully owned.
 
@@ -533,7 +539,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
   - Floating action button (FAB) on mobile to add a task
 - **Add Task sheet** (bottom sheet on mobile, dialog on desktop):
   - Fields: title (required, auto-focus), description (optional), day-of-week picker (optional)
-  - Assignee and goal fields are present in the UI but can show "coming in next stage" placeholder state — do not wire them up yet
+  - Assignee and project fields are present in the UI but can show "coming in next stage" placeholder state — do not wire them up yet
   - Save and cancel
 - Optimistic UI for checkbox toggle — status change feels instant
 - Empty state for weeks with no tasks
@@ -602,41 +608,52 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
 
 #### Verification checklist
 
-- [ ] Admin can add a new Google email to the allowlist; that person can now sign in
-- [ ] Admin can add a manual family member (e.g. a child's name); they appear in the assignee picker
-- [ ] Assigning a task to a family member shows their avatar on the task row
-- [ ] Non-admin family members cannot see or access allowlist management
-- [ ] Removing someone from the allowlist does not delete their existing tasks
+- [x] Admin can add a new Google email to the allowlist; that person can now sign in
+- [X Assigning a task to a family member shows their avatar on the task row
+- [x] Non-admin family members cannot see or access allowlist management
+- [x] Removing someone from the allowlist does not delete their existing tasks
 
 ---
 
-### Stage 5 — Goals & Projects
+### Stage 5 — Projects & Task Backlog
 
-**Goal:** The family can track progress toward larger multi-week objectives and link individual tasks to them.
+**Goal:** The family can organize work into Projects with their own task backlogs, and pull backlog tasks into weekly planning sessions.
+
+#### Schema migration
+
+- Rename `GoalProject` to `Project`; drop the `type` column
+- Make `Task.weekId` optional (`String?`) — a null `weekId` means the task lives in a project's backlog, not assigned to any week
+- Rename `Task.goalProjectId` → `Task.projectId`; rename the relation accordingly
 
 #### Deliverables
 
-- `GET/POST /api/goals`, `PATCH/DELETE /api/goals/[id]` API routes
-- **Goals page** (`/goals`):
-  - Card per goal/project: title, type badge (Goal / Project), status badge, description snippet
-  - Progress bar: tasks linked to this goal that are done / total linked tasks (all-time)
-  - "This week" count: how many linked tasks are planned for the current week
-  - Tap card to expand and see linked tasks grouped by week
-  - FAB / button to add new goal or project
-- **Add/Edit Goal sheet**: title, type (goal/project), description, status
-- **Wire up the goal field in the Add/Edit Task sheet**:
-  - Searchable dropdown of active goals/projects
-  - Selected goal shown as a small tag/chip on the task row in This Week view
-- Soft-delete for goals: `status = 'dropped'` rather than hard delete; dropped goals hidden by default with a "Show dropped" toggle
+- `GET/POST /api/projects`, `PATCH/DELETE /api/projects/[id]` API routes
+- `POST /api/projects/[id]/tasks` — create a task in a project's backlog (no weekId)
+- **Projects page** (`/projects`):
+  - Card per project: title, status badge, backlog count (tasks with no week), description snippet
+  - Tap card to expand: shows **Backlog** section (unscheduled tasks) and **Scheduled** section (tasks grouped by week they were/are scheduled in)
+  - Within the expanded view: "Add task" creates a backlog task directly (no week prompt)
+  - Each backlog task has a "Schedule for this week" action → sets `weekId` to the current week (and optionally prompts for day assignment)
+  - FAB / button to add a new project
+- **Add/Edit Project sheet**: title, description, status
+- **Wire up project field in the Add/Edit Task sheet** (for week tasks):
+  - Searchable dropdown of active projects
+  - Selected project shown as a small tag/chip on the task row in This Week view
+- **Week planning — pick from backlog**:
+  - In the Add Task sheet, a secondary "Pick from project backlog" button opens a project browser
+  - Selecting a backlog task schedules it for the current week (moves it out of backlog)
+- Soft-delete for projects: `status = 'dropped'`; dropped projects hidden by default with "Show dropped" toggle
 
 #### Verification checklist
 
-- [ ] Can create a goal and a project
-- [ ] Can link a task to a goal when adding/editing it
-- [ ] Goal card shows correct done/total count across all weeks
-- [ ] Tapping a goal card shows its linked tasks by week
-- [ ] Goal tag appears on task rows in This Week view
-- [ ] Dropped goals are hidden by default
+- [ ] Can create a project
+- [ ] Can add tasks to a project's backlog (no week assigned); they appear on the Projects page under Backlog
+- [ ] Project card shows correct backlog count
+- [ ] Tapping a project card shows backlog tasks and previously scheduled tasks by week
+- [ ] "Schedule for this week" on a backlog task moves it into the current week view
+- [ ] "Pick from project backlog" in the Add Task sheet lets you select and schedule a backlog task
+- [ ] Project tag appears on task rows in This Week view
+- [ ] Dropped projects are hidden by default
 
 ---
 
@@ -653,7 +670,7 @@ Each stage should be **deployable to Vercel and usable end-to-end** before the n
   - Read-only — no editing of archived weeks
 - `GET /api/weeks` — paginated list of archived weeks with task counts and retrospective
 - **Polish pass across all screens**:
-  - Consistent empty states (no tasks, no goals, no history yet)
+  - Consistent empty states (no tasks, no projects, no history yet)
   - Error states and network failure messages (toast on failed save, retry option)
   - Loading skeletons for async data
   - Smooth transitions on task toggle and sheet open/close
