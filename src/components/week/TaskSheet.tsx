@@ -112,7 +112,14 @@ export function TaskSheet({
           });
           toast.success('Task updated');
         } else {
-          await createTask({ weekId, title, description, dayOfWeek, assigneeUserId: assigneeId, projectId });
+          await createTask({
+            weekId,
+            title,
+            description,
+            dayOfWeek,
+            assigneeUserId: assigneeId,
+            projectId,
+          });
           toast.success('Task added');
         }
         handleClose();
@@ -280,9 +287,7 @@ export function TaskSheet({
                         </>
                       ) : (
                         <>
-                          <span className="flex-1 text-left text-muted-foreground">
-                            No project
-                          </span>
+                          <span className="flex-1 text-left text-muted-foreground">No project</span>
                           <ChevronDownIcon className="size-3.5 text-muted-foreground" />
                         </>
                       )}

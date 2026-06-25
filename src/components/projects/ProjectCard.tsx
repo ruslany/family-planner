@@ -64,8 +64,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function formatWeekRange(startDate: Date, endDate: Date) {
-  const fmt = (d: Date) =>
-    d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   return `${fmt(new Date(startDate))} – ${fmt(new Date(endDate))}`;
 }
 
@@ -241,7 +240,9 @@ export function ProjectCard({ project, currentWeekId }: ProjectCardProps) {
                         <div className="flex-1 min-w-0">
                           <p className="text-sm leading-snug">{t.title}</p>
                           {t.description && (
-                            <p className="text-xs text-muted-foreground truncate">{t.description}</p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {t.description}
+                            </p>
                           )}
                         </div>
                         {assignee && <MemberAvatar member={assignee} size="sm" />}
@@ -292,7 +293,10 @@ export function ProjectCard({ project, currentWeekId }: ProjectCardProps) {
                       </p>
                       <div className="flex flex-col gap-0.5">
                         {tasks.map((t) => (
-                          <div key={t.id} className="flex items-center gap-2 rounded-lg px-2 py-1.5">
+                          <div
+                            key={t.id}
+                            className="flex items-center gap-2 rounded-lg px-2 py-1.5"
+                          >
                             <span
                               className={cn(
                                 'h-1.5 w-1.5 rounded-full shrink-0',
@@ -331,11 +335,7 @@ export function ProjectCard({ project, currentWeekId }: ProjectCardProps) {
         onOpenChange={setAddTaskOpen}
       />
 
-      <ProjectSheet
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        project={project}
-      />
+      <ProjectSheet open={editOpen} onOpenChange={setEditOpen} project={project} />
     </>
   );
 }

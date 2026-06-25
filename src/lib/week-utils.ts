@@ -15,15 +15,7 @@ export function getCurrentWeekRange(): { startDate: Date; endDate: Date } {
   const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
   const monday = new Date(
-    Date.UTC(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() - daysFromMonday,
-      0,
-      0,
-      0,
-      0,
-    ),
+    Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() - daysFromMonday, 0, 0, 0, 0),
   );
   const sunday = new Date(
     Date.UTC(

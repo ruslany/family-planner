@@ -16,7 +16,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { CalendarDays, FolderKanban, History, Settings, Sun, Moon, Monitor, LogOut } from 'lucide-react';
+import {
+  CalendarDays,
+  FolderKanban,
+  History,
+  Settings,
+  Sun,
+  Moon,
+  Monitor,
+  LogOut,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navLinks = [

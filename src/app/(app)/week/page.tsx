@@ -115,12 +115,7 @@ async function getBacklogProjects() {
 export default async function WeekPage() {
   await auth();
   const [{ week, prevNotes, carryoverTasks }, members, projects, backlogProjects] =
-    await Promise.all([
-      getCurrentWeek(),
-      getMembers(),
-      getActiveProjects(),
-      getBacklogProjects(),
-    ]);
+    await Promise.all([getCurrentWeek(), getMembers(), getActiveProjects(), getBacklogProjects()]);
   return (
     <WeekView
       week={week}
