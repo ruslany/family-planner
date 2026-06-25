@@ -16,12 +16,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { CalendarDays, Target, History, Settings, Sun, Moon, Monitor, LogOut } from 'lucide-react';
+import { CalendarDays, FolderKanban, History, Settings, Sun, Moon, Monitor, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
   { href: '/week', label: 'This Week', icon: CalendarDays },
-  { href: '/goals', label: 'Goals', icon: Target },
+  { href: '/projects', label: 'Projects', icon: FolderKanban },
   { href: '/history', label: 'History', icon: History },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];

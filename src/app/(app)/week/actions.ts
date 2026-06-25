@@ -30,9 +30,11 @@ export async function createTask(formData: {
   dayOfWeek?: number | null;
   assigneeUserId?: string | null;
   assigneeMemberId?: string | null;
+  projectId?: string | null;
 }) {
   await requireAuth();
-  const { weekId, title, description, dayOfWeek, assigneeUserId, assigneeMemberId } = formData;
+  const { weekId, title, description, dayOfWeek, assigneeUserId, assigneeMemberId, projectId } =
+    formData;
 
   if (!weekId || !title?.trim()) throw new Error('weekId and title are required');
 
@@ -45,6 +47,7 @@ export async function createTask(formData: {
       status: 'todo',
       assigneeUserId: assigneeUserId ?? null,
       assigneeMemberId: assigneeMemberId ?? null,
+      projectId: projectId ?? null,
     },
   });
   revalidatePath('/week');
@@ -57,6 +60,7 @@ export async function updateTask(
     description?: string;
     dayOfWeek?: number | null;
     assigneeUserId?: string | null;
+    projectId?: string | null;
   },
 ) {
   await requireAuth();
@@ -68,6 +72,7 @@ export async function updateTask(
     updates.assigneeUserId = data.assigneeUserId;
     updates.assigneeMemberId = null;
   }
+  if (data.projectId !== undefined) updates.projectId = data.projectId;
 
   await prisma.task.update({ where: { id }, data: updates });
   revalidatePath('/week');
@@ -77,6 +82,35 @@ export async function deleteTask(id: string) {
   await requireAuth();
   await prisma.task.delete({ where: { id } });
   revalidatePath('/week');
+  revalidatePath('/projects');
+}
+
+export async function scheduleBacklogTask(
+  taskId: string,
+  weekId: string,
+  dayOfWeek?: number | null,
+) {
+  await requireAuth();
+  await prisma.task.update({
+    where: { id: taskId },
+    data: {
+      weekId,
+      dayOfWeek: dayOfWeek ?? null,
+      status: 'todo',
+    },
+  });
+  revalidatePath('/week');
+  revalidatePath('/projects');
+}
+
+export async function unscheduleTask(taskId: string) {
+  await requireAuth();
+  await prisma.task.update({
+    where: { id: taskId },
+    data: { weekId: null, dayOfWeek: null },
+  });
+  revalidatePath('/week');
+  revalidatePath('/projects');
 }
 
 export async function startWeek(weekId: string) {
@@ -108,7 +142,7 @@ export async function carryForwardTask(taskId: string, newWeekId: string) {
         dayOfWeek: null,
         assigneeUserId: task.assigneeUserId,
         assigneeMemberId: task.assigneeMemberId,
-        goalProjectId: task.goalProjectId,
+        projectId: task.projectId,
       },
     }),
   ]);
@@ -133,7 +167,7 @@ export async function carryForwardAllTasks(taskIds: string[], newWeekId: string)
           dayOfWeek: null,
           assigneeUserId: task.assigneeUserId,
           assigneeMemberId: task.assigneeMemberId,
-          goalProjectId: task.goalProjectId,
+          projectId: task.projectId,
         },
       }),
     ),

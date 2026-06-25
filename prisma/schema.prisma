@@ -75,11 +75,10 @@ model FamilyMember {
   tasks     Task[]
 }
 
-model GoalProject {
+model Project {
   id          String    @id @default(cuid())
   title       String
   description String?
-  type        String    // "goal" | "project"
   status      String    @default("active") // "active" | "completed" | "on-hold" | "dropped"
   createdAt   DateTime  @default(now())
   completedAt DateTime?
@@ -105,15 +104,16 @@ model Task {
   sortOrder        Int           @default(0)
   createdAt        DateTime      @default(now())
   completedAt      DateTime?
-  week             Week          @relation(fields: [weekId], references: [id])
-  weekId           String
+  // weekId is null for project backlog tasks; set when scheduled for a specific week
+  week             Week?         @relation(fields: [weekId], references: [id])
+  weekId           String?
   // Assignee is either a Google-authenticated User OR a manual FamilyMember (not both)
   assigneeUser     User?         @relation(fields: [assigneeUserId], references: [id])
   assigneeUserId   String?
   assigneeMember   FamilyMember? @relation(fields: [assigneeMemberId], references: [id])
   assigneeMemberId String?
-  goalProject      GoalProject?  @relation(fields: [goalProjectId], references: [id])
-  goalProjectId    String?
+  project          Project?      @relation(fields: [projectId], references: [id])
+  projectId        String?
 }
 
 model Retrospective {

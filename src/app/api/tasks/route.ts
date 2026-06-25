@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     include: {
       assigneeUser: { select: { id: true, name: true, image: true } },
       assigneeMember: { select: { id: true, name: true, color: true } },
-      goalProject: { select: { id: true, title: true } },
+      project: { select: { id: true, title: true } },
     },
   });
 

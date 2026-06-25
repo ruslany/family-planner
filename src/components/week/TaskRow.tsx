@@ -30,7 +30,9 @@ export function TaskRow({
 
   const assignee = task.assigneeUser
     ? { name: task.assigneeUser.name ?? 'Unknown', image: task.assigneeUser.image }
-    : null;
+    : task.assigneeMember
+      ? { name: task.assigneeMember.name, image: null }
+      : null;
 
   function handleToggle() {
     const nextStatus = optimisticStatus === 'done' ? 'todo' : 'done';
@@ -75,18 +77,22 @@ export function TaskRow({
         type="button"
         onClick={() => onEdit(task)}
         className={cn(
-          'flex-1 text-left text-sm leading-snug',
-          (isDone || isSkipped) && 'text-muted-foreground line-through',
+          'flex min-w-0 flex-1 flex-col text-left',
+          (isDone || isSkipped) && 'text-muted-foreground',
         )}
       >
-        {task.title}
-        {task.description && (
-          <span
-            className="ml-1 text-xs text-muted-foreground/70 no-underline"
-            style={{ textDecoration: 'none' }}
-          >
-            — {task.description}
+        <span className="flex flex-wrap items-baseline gap-x-1.5">
+          <span className={cn('text-sm leading-snug', (isDone || isSkipped) && 'line-through')}>
+            {task.title}
           </span>
+          {task.project && (
+            <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary leading-none">
+              {task.project.title}
+            </span>
+          )}
+        </span>
+        {task.description && (
+          <span className="text-xs text-muted-foreground/70">{task.description}</span>
         )}
       </button>
       {assignee && <MemberAvatar member={assignee} size="sm" />}
